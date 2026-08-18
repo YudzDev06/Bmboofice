@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Generator</title>
+<style>
+:root{--blue:#064fc4;--blue2:#0b3f9f;--navy:#10284a;--line:#d9e1ec;--muted:#667085;--bg:#f3f6fa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#172033}
+.app{max-width:1260px;margin:10px auto;padding:0 8px}
+.layout{display:grid;grid-template-columns:345px minmax(0,1fr);gap:8px;align-items:start}
+.panel,.paper{background:#fff;border:1px solid #e2e7ee}
+.panel{border-radius:7px;overflow:hidden}
+.panel-head{background:linear-gradient(90deg,#0645a9,#073da0);color:#fff;padding:14px 18px;font-weight:800;font-size:18px}
+.panel-head small{display:block;font-size:11px;font-weight:400;margin-top:3px;opacity:.9}
+.section{padding:13px 16px;border-bottom:1px solid #e1e6ed}
+.section h3{font-size:12px;color:#0649b5;margin:0 0 10px;text-transform:uppercase}
+label{display:block;font-size:10px;font-weight:700;color:#475467;margin:7px 0 4px}
+input,textarea{width:100%;border:1px solid #cfd7e3;border-radius:5px;padding:7px 8px;font:11px Arial;background:#fff;color:#172033}
+textarea{min-height:52px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.logo-tools{display:flex;gap:8px;align-items:center;border:1px solid #d9e1ec;border-radius:5px;padding:8px}
+.logo-thumb{width:60px;height:60px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.logo-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.logo-placeholder{font-weight:900;font-size:28px;color:#0757b8;border:5px solid #0757b8;width:50px;height:50px;display:flex;align-items:center;justify-content:center}
+.filebtn,.delbtn,.addbtn,.savebtn,.printbtn{border:0;border-radius:5px;padding:8px 10px;font-weight:700;font-size:10px;cursor:pointer}
+.filebtn,.addbtn,.savebtn{background:#0757b8;color:#fff}
+.delbtn{background:#fff1f1;color:#c52222}
+.item-head{display:grid;grid-template-columns:25px 1fr 42px 72px 72px 22px;gap:4px;font-size:8px;font-weight:700;color:#475467;margin-bottom:5px}
+.item{display:grid;grid-template-columns:25px 1fr 42px 72px 72px 22px;gap:4px;align-items:center;margin-bottom:6px}
+.item input{padding:6px 4px;font-size:9px}
+.item .remove{background:#fff0f0;color:#c52222;border:0;border-radius:4px;height:29px;cursor:pointer;font-weight:800}
+.summary{font-size:10px}
+.summary div{display:flex;justify-content:space-between;padding:5px 0}
+.summary .grand{background:#edf3ff;color:#0649b5;font-size:13px;font-weight:800;padding:9px;border-radius:4px}
+.actions{display:flex;gap:8px}
+.printbtn{background:#10a84a;color:#fff;flex:1}
+.savebtn{flex:1}
+.paper{width:100%;max-width:820px;min-height:1120px;margin:0 auto;padding:30px 28px;border-radius:7px;box-shadow:0 3px 15px #00000010}
+.inv-head{display:flex;gap:18px;border-bottom:2px solid #0757b8;padding-bottom:14px}
+.inv-logo{width:100px;height:90px;display:flex;align-items:center;justify-content:center}
+.inv-logo img{max-width:100%;max-height:100%;object-fit:contain}
+.inv-company h1{font-size:20px;margin:4px 0 6px;color:var(--navy)}
+.inv-company p{font-size:10px;margin:3px 0;line-height:1.45;color:#344054}
+.inv-title{display:flex;justify-content:flex-end;align-items:flex-end;margin:18px 0 13px}
+.inv-title h2{font-size:34px;color:#0757b8;margin:0;letter-spacing:.5px}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.card{border:1px solid #d5dce7;border-radius:4px;overflow:hidden;min-height:145px}
+.card-title{display:inline-block;background:#0757b8;color:#fff;font-size:11px;font-weight:800;padding:7px 12px}
+.card-body{padding:10px 12px;font-size:10px;line-height:1.65;white-space:pre-line}
+.details{padding:10px 12px;font-size:10px;line-height:1.8}
+.details div{display:grid;grid-template-columns:82px 10px 1fr}
+.details span{color:#475467}
+table{width:100%;border-collapse:collapse;font-size:9.5px}
+th{background:#0757b8;color:#fff;padding:8px 6px;text-align:left}
+td{border:1px solid #d5dce7;padding:9px 6px;vertical-align:top}
+th:nth-child(1),td:nth-child(1){width:35px;text-align:center}
+th:nth-child(3),td:nth-child(3){width:65px;text-align:center}
+th:nth-child(4),td:nth-child(4),th:nth-child(5),td:nth-child(5){width:105px;text-align:right}
+.below{display:grid;grid-template-columns:1fr 305px;gap:18px;margin-top:22px}
+.note{font-size:9.5px;line-height:1.6}
+.note-title{color:#0757b8;font-weight:800;font-size:11px;margin-bottom:7px}
+.note p{margin:5px 0}
+.note strong{color:#0757b8}
+.totals{border:1px solid #d5dce7;font-size:10px}
+.totals div{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #d5dce7}
+.totals .total{background:#eaf1ff;color:#0649b5;font-size:13px;font-weight:800;border-bottom:0}
+.signature-wrap{display:flex;justify-content:flex-end;margin-top:30px}
+.signature{width:220px;border:1px solid #d5dce7;border-radius:4px;text-align:center;padding:11px 12px;min-height:145px;font-size:10px}
+.signature-space{height:65px}
+.signature-line{width:78%;border-top:1px solid #667085;margin:0 auto 5px}
+.signature b{font-size:10px}
+.signature small{display:block;color:#667085;margin-top:2px}
+.footer{border-top:1px solid #0757b8;margin-top:25px;padding-top:12px;text-align:center;color:#0757b8;font-size:10px}
+.footer strong{font-size:12px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.panel{position:static}.paper{padding:22px}.below,.info{grid-template-columns:1fr}}
+@media print{
+ body{background:#fff}
+ .app{margin:0;padding:0;max-width:none}
+ .panel{display:none}
+ .layout{display:block}
+ .paper{border:0;box-shadow:none;border-radius:0;max-width:none;width:210mm;min-height:297mm;padding:14mm 14mm}
+ @page{size:A4;margin:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="layout">
+
+<aside class="panel">
+  <div class="panel-head">▣ INVOICE GENERATOR<small>Buat Invoice Otomatis</small></div>
+
+  <div class="section">
+    <h3>1. Data Perusahaan</h3>
+    <label>Logo Perusahaan</label>
+    <div class="logo-tools">
+      <div class="logo-thumb" id="logoThumb"><div class="logo-placeholder">B</div></div>
+      <input id="logo" type="file" accept="image/*" style="display:none">
+      <button class="filebtn" onclick="document.getElementById('logo').click()">Pilih Logo</button>
+      <button class="delbtn" onclick="removeLogo()">Hapus</button>
+    </div>
+    <label>Nama Perusahaan</label><input id="company" value="PT. BERKAH MANDIRI BERSAUDARA">
+    <label>Alamat</label><textarea id="address">Jl. Puri Cikarang Hijau, Blok E5 No.18, Desa. Karang Asih
+Cikarang Utara – Bekasi, Jawa Barat. 17534</textarea>
+    <div class="row">
+      <div><label>Telepon</label><input id="phone" value="089673714935 - 089654560811"></div>
+      <div><label>Email</label><input id="email" value="pt.berkahmandiribersaudara@gmail.com"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>2. Data Pelanggan (Bill To)</h3>
+    <label>Nama / Departemen</label><input id="department" value="Finance">
+    <label>Nama Perusahaan</label><input id="customer" value="PT. Xentra Platform Digital Cargo">
+    <label>Alamat</label><textarea id="customerAddress">Commercial Park ACP2 No UG 16, Neglasari
+Tangerang – Banten</textarea>
+    <label>Telepon</label><input id="customerPhone" value="08117000133">
+  </div>
+
+  <div class="section">
+    <h3>3. Data Invoice</h3>
+    <div class="row">
+      <div><label>No. Invoice</label><input id="number" value="INV/2026/0863"></div>
+      <div><label>Tanggal</label><input id="date" type="date" value="2026-08-18"></div>
+    </div>
+    <div class="row">
+      <div><label>Untuk</label><input id="purpose" value="DOWN PAYMENT"></div>
+      <div><label>Sales</label><input id="sales" value="VINA"></div>
+    </div>
+    <label>Nama Finance</label><input id="finance" value="Hana">
+  </div>
+
+  <div class="section">
+    <h3>4. Daftar Barang</h3>
+    <div class="item-head"><span>No</span><span>Nama Barang</span><span>Qty</span><span>Harga</span><span>Total</span><span></span></div>
+    <div id="items"></div>
+    <button class="addbtn" onclick="addItem()">+ Tambah Barang</button>
+  </div>
+
+  <div class="section">
+    <h3>5. Rincian Pembayaran</h3>
+    <div class="row">
+      <div><label>DP (%)</label><input id="dp" type="number" value="100"></div>
+      <div><label>Discount</label><input id="discount" type="number" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>PPN</label><input id="ppn" type="number" value="0"></div>
+      <div><label>PPh22</label><input id="pph22" type="number" value="0"></div>
+    </div>
+    <label>Catatan Pembayaran</label>
+    <textarea id="note">Pembayaran Hanya Transfer Melalui Bank Rekening
+BCA A/N BERKAH MANDIRI BERSAUDARA
+NO. Rekening 343.2608.449
+
+Pembayaran secara tunai atau Giro Dianggap tidak sah</textarea>
+    <div class="summary" style="margin-top:8px">
+      <div class="grand"><span>TOTAL</span><span id="sideTotal">Rp.300,000</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="actions">
+      <button class="savebtn" onclick="saveData()">▣ Simpan</button>
+      <button class="printbtn" onclick="window.print()">▣ Cetak / PDF</button>
+    </div>
+    <div style="font-size:9px;color:#98a2b3;margin-top:8px">Data tersimpan di browser jika menekan Simpan.</div>
+  </div>
+</aside>
+
+<main class="paper">
+  <header class="inv-head">
+    <div class="inv-logo" id="invLogo"><div class="logo-placeholder">B</div></div>
+    <div class="inv-company">
+      <h1 id="pCompany">PT. BERKAH MANDIRI BERSAUDARA</h1>
+      <p id="pAddress"></p>
+      <p>☎ <span id="pPhone"></span></p>
+      <p>✉ <span id="pEmail"></span></p>
+    </div>
+  </header>
+
+  <div class="inv-title"><h2>INVOICE</h2></div>
+
+  <section class="info">
+    <div class="card">
+      <div class="card-title">BILL TO</div>
+      <div class="card-body" id="pBill"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">INVOICE DETAILS</div>
+      <div class="details">
+        <div><span>No. Invoice</span><i>:</i><b id="pNumber"></b></div>
+        <div><span>Tanggal</span><i>:</i><b id="pDate"></b></div>
+        <div><span>Untuk</span><i>:</i><b id="pPurpose"></b></div>
+        <div><span>Sales</span><i>:</i><b id="pSales"></b></div>
+      </div>
+    </div>
+  </section>
+
+  <table>
+    <thead><tr><th>No</th><th>Nama Barang</th><th>Quantity</th><th>Harga Satuan (Rp)</th><th>Total (Rp)</th></tr></thead>
+    <tbody id="pItems"></tbody>
+  </table>
+
+  <div class="below">
+    <div class="note">
+      <div class="note-title">Note :</div>
+      <div id="pNote"></div>
+    </div>
+    <div class="totals">
+      <div><b>SUBTOTAL</b><span id="pSubtotal"></span></div>
+      <div><b>DP</b><span id="pDP"></span></div>
+      <div><b>DISCOUNT</b><span id="pDiscount"></span></div>
+      <div><b>PPN</b><span id="pPPN"></span></div>
+      <div><b>PPh22</b><span id="pPph22"></span></div>
+      <div class="total"><b>TOTAL</b><span id="pTotal"></span></div>
+    </div>
+  </div>
+
+  <div class="signature-wrap">
+    <div class="signature">
+      <div>Finance</div>
+      <div class="signature-space"></div>
+      <div class="signature-line"></div>
+      <b id="pFinance">Hana</b>
+      <small>Finance</small>
+    </div>
+  </div>
+
+  <div class="footer"><strong>✓ TERIMA KASIH</strong><br>Atas kepercayaan dan kerjasamanya</div>
+</main>
+
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>'Rp.'+Math.round(Number(n)||0).toLocaleString('id-ID');
+const ids=['company','address','phone','email','department','customer','customerAddress','customerPhone','number','date','purpose','sales','finance','dp','discount','ppn','pph22','note'];
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function addItem(name='',qty=1,price=0){
+  const d=document.createElement('div'); d.className='item';
+  d.innerHTML='<span class="inum"></span><input class="iname" value="'+esc(name)+'"><input class="iqty" type="number" min="0" value="'+qty+'"><input class="iprice" type="number" min="0" value="'+price+'"><input class="itotal" readonly value="'+money(qty*price)+'"><button class="remove">×</button>';
+  d.querySelector('.remove').onclick=()=>{d.remove();renumber();update()};
+  d.querySelectorAll('input').forEach(x=>x.addEventListener('input',update));
+  $('items').appendChild(d); renumber(); update();
+}
+function renumber(){document.querySelectorAll('.item').forEach((x,i)=>x.querySelector('.inum').textContent=i+1)}
+function update(){
+  $('pCompany').textContent=$('company').value;
+  $('pAddress').textContent=$('address').value;
+  $('pPhone').textContent=$('phone').value;
+  $('pEmail').textContent=$('email').value;
+  $('pNumber').textContent=$('number').value;
+  $('pPurpose').textContent=$('purpose').value;
+  $('pSales').textContent=$('sales').value;
+  $('pFinance').textContent=$('finance').value||'Hana';
+  $('pBill').textContent=$('department').value+'\n'+$('customer').value+'\n'+$('customerAddress').value+'\nTlp. '+$('customerPhone').value;
+  $('pDate').textContent=$('date').value?new Date($('date').value+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+
+  let subtotal=0,rows='';
+  document.querySelectorAll('.item').forEach((d,i)=>{
+    const name=d.querySelector('.iname').value, qty=Number(d.querySelector('.iqty').value)||0, price=Number(d.querySelector('.iprice').value)||0, total=qty*price;
+    subtotal+=total; d.querySelector('.itotal').value=money(total);
+    rows+='<tr><td>'+(i+1)+'</td><td>'+esc(name)+'</td><td style="text-align:center">'+qty+' pcs</td><td>'+money(price)+'</td><td>'+money(total)+'</td></tr>';
+  });
+  $('pItems').innerHTML=rows||'<tr><td colspan="5" style="text-align:center">Belum ada barang</td></tr>';
+  const discount=Number($('discount').value)||0,ppn=Number($('ppn').value)||0,pph=Number($('pph22').value)||0;
+  const total=Math.max(0,subtotal-discount+ppn-pph);
+  $('pSubtotal').textContent=money(subtotal);
+  $('pDP').textContent=($('dp').value||0)+'%';
+  $('pDiscount').textContent=money(discount);
+  $('pPPN').textContent=money(ppn);
+  $('pPph22').textContent=money(pph);
+  $('pTotal').textContent=money(total);
+  $('sideTotal').textContent=money(total);
+  $('pNote').innerHTML=esc($('note').value).replace(/\n/g,'<br>');
+}
+function saveData(){
+  const data={}; ids.forEach(id=>data[id]=$(id).value);
+  data.items=[...document.querySelectorAll('.item')].map(d=>({name:d.querySelector('.iname').value,qty:d.querySelector('.iqty').value,price:d.querySelector('.iprice').value}));
+  localStorage.setItem('invoiceGeneratorData',JSON.stringify(data));
+  alert('Data invoice berhasil disimpan di browser.');
+}
+function loadData(){
+  const raw=localStorage.getItem('invoiceGeneratorData'); if(!raw)return;
+  try{
+    const data=JSON.parse(raw); ids.forEach(id=>{if(data[id]!==undefined)$(id).value=data[id]});
+    $('items').innerHTML='';
+    (data.items||[]).forEach(x=>addItem(x.name,x.qty,x.price));
+  }catch(e){}
+}
+function removeLogo(){localStorage.removeItem('invoiceLogo'); $('logoThumb').innerHTML='<div class="logo-placeholder">B</div>'; $('invLogo').innerHTML='<div class="logo-placeholder">B</div>'}
+$('logo').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{localStorage.setItem('invoiceLogo',r.result);showLogo(r.result)};r.readAsDataURL(f)
+});
+function showLogo(src){
+  $('logoThumb').innerHTML='<img src="'+src+'" alt="Logo">';
+  $('invLogo').innerHTML='<img src="'+src+'" alt="Logo">';
+}
+ids.forEach(id=>$(id).addEventListener('input',update));
+loadData();
+const savedLogo=localStorage.getItem('invoiceLogo');if(savedLogo)showLogo(savedLogo);
+if(!$('items').children.length){
+  addItem('Sample Kemeja Staff Pria Pendek ( N 332 K ) Size L',1,150000);
+  addItem('Sample Kemeja Staff Wanita Panjang ( N 328 ) Size M',1,150000);
+}
+update();
+</script>
+</body>
+</html>
