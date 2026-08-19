@@ -76,13 +76,34 @@ th:nth-child(4),td:nth-child(4),th:nth-child(5),td:nth-child(5){width:105px;text
 .footer strong{font-size:12px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.panel{position:static}.paper{padding:22px}.below,.info{grid-template-columns:1fr}}
 @media print{
- body{background:#fff}
- .app{margin:0;padding:0;max-width:none}
- .panel{display:none}
- .layout{display:block}
- .paper{border:0;box-shadow:none;border-radius:0;max-width:none;width:210mm;min-height:297mm;padding:14mm 14mm}
+ body{background:#fff;margin:0}
+ .app{margin:0;padding:0;max-width:none;width:100%}
+ .panel{display:none!important}
+ .layout{display:block!important;width:100%}
+ .paper{border:0;box-shadow:none;border-radius:0;max-width:none;width:210mm;min-height:297mm;padding:12mm 12mm;margin:0 auto;overflow:visible}
+
+ /* Paksa layout cetak A4 tetap seperti desktop walaupun dicetak dari HP. */
+ .info{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important;margin-bottom:18px}
+ .below{display:grid!important;grid-template-columns:minmax(0,1fr) 305px!important;gap:16px!important;margin-top:18px}
+
+ /* Jangan izinkan kartu detail dan blok total terbelah antar halaman. */
+ .info,.card,.below,.note,.totals{break-inside:avoid!important;page-break-inside:avoid!important}
+ .totals{break-inside:avoid!important;page-break-inside:avoid!important}
+ .totals div{break-inside:avoid!important;page-break-inside:avoid!important}
+ table{break-inside:auto}
+ tr{break-inside:avoid;page-break-inside:avoid}
+ .signature-wrap{break-inside:avoid;page-break-inside:avoid}
+ .footer{break-inside:avoid;page-break-inside:avoid}
  @page{size:A4;margin:0}
 }
+
+/* Template & PDF layout fixes */
+.inv-head{display:grid;grid-template-columns:88px minmax(0,1fr);gap:16px;align-items:center;border-bottom:2px solid #0757b8;padding:2px 0 13px}
+.inv-logo{width:88px;height:72px;display:flex;align-items:center;justify-content:center}
+.inv-logo img{max-width:76px;max-height:66px;object-fit:contain}
+.inv-company h1{font-size:20px;line-height:1.2;margin:0 0 6px;color:var(--navy);letter-spacing:.1px}
+.inv-company p{font-size:9.5px;margin:2px 0;line-height:1.45;color:#344054}
+@media print{.info{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}.inv-head{grid-template-columns:88px minmax(0,1fr);gap:14px;padding-top:0;padding-bottom:12px}.inv-logo{width:88px;height:68px}.inv-company h1{font-size:18px;margin-bottom:5px}.inv-company p{font-size:8.5px}.totals,.below,.note{break-inside:avoid!important;page-break-inside:avoid!important}}
 </style>
 </head>
 <body>
@@ -112,24 +133,26 @@ Cikarang Utara – Bekasi, Jawa Barat. 17534</textarea>
 
   <div class="section">
     <h3>2. Data Pelanggan (Bill To)</h3>
-    <label>Nama / Departemen</label><input id="department" value="Finance">
-    <label>Nama Perusahaan</label><input id="customer" value="PT. Xentra Platform Digital Cargo">
-    <label>Alamat</label><textarea id="customerAddress">Commercial Park ACP2 No UG 16, Neglasari
-Tangerang – Banten</textarea>
-    <label>Telepon</label><input id="customerPhone" value="08117000133">
+    <label>Nama / Departemen</label><input id="department" value="">
+    <label>Nama Perusahaan</label><input id="customer" value="">
+    <label>Alamat</label><textarea id="customerAddress"></textarea>
+    <label>Telepon</label><input id="customerPhone" value="">
   </div>
 
   <div class="section">
     <h3>3. Data Invoice</h3>
     <div class="row">
-      <div><label>No. Invoice</label><input id="number" value="INV/2026/0863"></div>
-      <div><label>Tanggal</label><input id="date" type="date" value="2026-08-18"></div>
+      <div><label>No. Invoice</label><input id="number" value=""></div>
+      <div><label>Tanggal</label><input id="date" type="date" value=""></div>
     </div>
     <div class="row">
-      <div><label>Untuk</label><input id="purpose" value="DOWN PAYMENT"></div>
-      <div><label>Sales</label><input id="sales" value="VINA"></div>
+      <div><label>Untuk</label><input id="purpose" value=""></div>
+      <div><label>No. PO</label><input id="po" value=""></div>
     </div>
-    <label>Nama Finance</label><input id="finance" value="Hana">
+    <div class="row">
+      <div><label>Sales</label><input id="sales" value=""></div>
+      <div><label>Nama Finance</label><input id="finance" value=""></div>
+    </div>
   </div>
 
   <div class="section">
@@ -193,6 +216,7 @@ Pembayaran secara tunai atau Giro Dianggap tidak sah</textarea>
         <div><span>No. Invoice</span><i>:</i><b id="pNumber"></b></div>
         <div><span>Tanggal</span><i>:</i><b id="pDate"></b></div>
         <div><span>Untuk</span><i>:</i><b id="pPurpose"></b></div>
+        <div><span>No. PO</span><i>:</i><b id="pPO"></b></div>
         <div><span>Sales</span><i>:</i><b id="pSales"></b></div>
       </div>
     </div>
@@ -237,7 +261,7 @@ Pembayaran secara tunai atau Giro Dianggap tidak sah</textarea>
 <script>
 const $=id=>document.getElementById(id);
 const money=n=>'Rp.'+Math.round(Number(n)||0).toLocaleString('id-ID');
-const ids=['company','address','phone','email','department','customer','customerAddress','customerPhone','number','date','purpose','sales','finance','dp','discount','ppn','pph22','note'];
+const ids=['company','address','phone','email','department','customer','customerAddress','customerPhone','number','date','purpose','po','sales','finance','dp','discount','ppn','pph22','note'];
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function addItem(name='',qty=1,price=0){
@@ -255,10 +279,11 @@ function update(){
   $('pEmail').textContent=$('email').value;
   $('pNumber').textContent=$('number').value;
   $('pPurpose').textContent=$('purpose').value;
+  $('pPO').textContent=$('po').value;
   $('pSales').textContent=$('sales').value;
-  $('pFinance').textContent=$('finance').value||'Hana';
+  $('pFinance').textContent=$('finance').value;
   $('pBill').textContent=$('department').value+'\n'+$('customer').value+'\n'+$('customerAddress').value+'\nTlp. '+$('customerPhone').value;
-  $('pDate').textContent=$('date').value?new Date($('date').value+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+  $('pDate').textContent=$('date').value?new Date($('date').value+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'';
 
   let subtotal=0,rows='';
   document.querySelectorAll('.item').forEach((d,i)=>{
@@ -305,8 +330,7 @@ ids.forEach(id=>$(id).addEventListener('input',update));
 loadData();
 const savedLogo=localStorage.getItem('invoiceLogo');if(savedLogo)showLogo(savedLogo);
 if(!$('items').children.length){
-  addItem('Sample Kemeja Staff Pria Pendek ( N 332 K ) Size L',1,150000);
-  addItem('Sample Kemeja Staff Wanita Panjang ( N 328 ) Size M',1,150000);
+   addItem('',1,0);
 }
 update();
 </script>
