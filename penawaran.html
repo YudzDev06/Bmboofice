@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Generator Surat Penawaran</title>
+<title>Generator Surat Penawaran - V10</title>
 
 <style>
 *{box-sizing:border-box}
@@ -106,10 +106,13 @@ button{
     border-radius:5px
 }
 
-.product input{
+.product input,.product textarea{
     font-size:10px;
-    padding:6px
+    padding:6px;
+    width:100%;
+    min-height:31px;
 }
+.product textarea.name{resize:vertical;min-height:31px;line-height:1.2}
 
 .product-grid{
     display:grid;
@@ -163,8 +166,10 @@ button{
     display:flex;
     gap:18px;
     border-bottom:2px solid #222;
-    padding-bottom:15px
+    padding-bottom:15px;
+    align-items:center
 }
+.header .company{text-align:center}
 
 .logo{
     width:90px;
@@ -205,15 +210,35 @@ button{
     font-size:10.5pt
 }
 
+.contact-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:28px;
+    flex-wrap:wrap;
+}
+
+.contact-row p{
+    margin:0;
+}
+
+.email-line,
+.email-line span{
+    color:#0757b8;
+}
+
 .info{
     margin-top:25px;
     display:grid;
-    grid-template-columns:55px 15px 1fr 110px;
-    line-height:1.9
+    grid-template-columns:55px 15px 1fr 120px;
+    line-height:1.7;
+    align-items:start
 }
 
 .info .date{
-    text-align:right
+    text-align:right;
+    white-space:nowrap;
+    padding-top:0
 }
 
 .content{
@@ -234,6 +259,32 @@ th,td{
     vertical-align:top
 }
 
+/* Jaga agar satu baris produk tidak terpotong saat cetak/PDF */
+tbody tr{
+    break-inside:avoid;
+    page-break-inside:avoid;
+}
+
+tbody td{
+    break-inside:avoid;
+    page-break-inside:avoid;
+}
+
+thead{
+    display:table-header-group;
+}
+
+@media print{
+    table{
+        break-inside:auto;
+        page-break-inside:auto;
+    }
+    tbody tr{
+        break-inside:avoid !important;
+        page-break-inside:avoid !important;
+    }
+}
+
 th{
     text-align:center;
     font-weight:bold
@@ -243,9 +294,16 @@ td.center{
     text-align:center
 }
 
+td.product-name{
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+}
+
 td.price{
     text-align:right;
-    font-weight:bold
+    font-weight:bold;
+    vertical-align:top;
+    white-space:nowrap
 }
 
 .product-img{
@@ -261,7 +319,8 @@ td.price{
 }
 
 .notes b{
-    text-decoration:underline
+    font-weight:bold;
+    text-decoration:none
 }
 
 .notes ul{
@@ -285,14 +344,17 @@ td.price{
     height:65px
 }
 
-.footer{
-    margin-top:25px;
-    padding-top:8px;
-    border-top:1px solid #222;
-    text-align:center;
-    font-size:9pt
-}
 
+.customer-paper{page-break-before:always;break-before:page;padding-top:18mm;}
+.customer-paper .customer-title{margin-top:0}
+.customer-title{text-align:center;font-size:18pt;margin:8px 0 4px;font-weight:bold;}
+.customer-subtitle{text-align:center;font-size:10pt;margin:0 0 22px;}
+.customer-logos{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 18px;align-items:center;justify-items:center;margin-top:20px;}
+.customer-logo-card{width:100%;text-align:center;}
+.customer-logo-item{width:100%;height:85px;display:flex;align-items:center;justify-content:center;}
+.customer-logo-item img{max-width:100%;max-height:80px;object-fit:contain;}
+.customer-logo-name{text-align:center;font-size:8pt;margin-top:4px;}
+.customer-empty{grid-column:1/-1;text-align:center;color:#777;padding:60px 20px;border:1px dashed #bbb;font-size:10pt;}
 /* HP */
 @media(max-width:800px){
 
@@ -311,6 +373,15 @@ td.price{
 
 /* CETAK */
 @media print{
+    body.printing .panel{display:none!important;}
+    body.printing .preview{display:block!important;}
+
+    html,body{
+        width:210mm!important;
+        margin:0!important;
+        padding:0!important;
+        background:white!important;
+    }
 
     body{
         background:white
@@ -379,28 +450,37 @@ value="pt.berkahmandiribersaudara@gmail.com">
 
 </div>
 
+<!-- CUSTOMER LOGO -->
+<div class="section">
+<h3>2. LOGO CUSTOMER</h3>
+<label>Tambah logo customer (bisa lebih dari satu)</label>
+<input type="file" id="customerLogos" accept="image/*" multiple>
+<div id="customerLogoList" style="margin-top:8px;font-size:10px"></div>
+<small style="display:block;margin-top:7px;color:#666">Logo otomatis masuk ke halaman khusus customer saat dicetak.</small>
+</div>
+
 <!-- TUJUAN -->
 <div class="section">
 
-<h3>2. TUJUAN SURAT</h3>
+<h3>3. TUJUAN SURAT</h3>
 
-<label>Attn</label>
+<label>Nama Orang / PIC</label>
+<input id="up" value="" placeholder="Nama PIC">
+
+<label>Nama Perusahaan</label>
 <input id="attn"
-value="PT. ROJU PACIFIC INDONESIA">
-
-<label>UP / PIC</label>
-<input id="up" value="Ibu Hena">
+value="" placeholder="Nama perusahaan customer">
 
 <div class="row">
 
 <div>
 <label>Tanggal</label>
-<input id="date" type="date" value="2026-05-15">
+<input id="date" type="date" value="">
 </div>
 
 <div>
 <label>Hal</label>
-<input id="subject" value="Penawaran Harga">
+<input id="subject" value="" placeholder="Penawaran Harga">
 </div>
 
 </div>
@@ -410,7 +490,7 @@ value="PT. ROJU PACIFIC INDONESIA">
 <!-- ISI -->
 <div class="section">
 
-<h3>3. ISI SURAT</h3>
+<h3>4. ISI SURAT</h3>
 
 <label>Pembuka</label>
 <textarea id="opening">Dengan Hormat,
@@ -422,7 +502,7 @@ Bersama ini kami dari PT. BERKAH MANDIRI BERSAUDARA, ingin menawarkan produk kam
 <!-- PRODUK -->
 <div class="section">
 
-<h3>4. DAFTAR PRODUK</h3>
+<h3>5. DAFTAR PRODUK</h3>
 
 <div id="products"></div>
 
@@ -435,7 +515,7 @@ Bersama ini kami dari PT. BERKAH MANDIRI BERSAUDARA, ingin menawarkan produk kam
 <!-- KETERANGAN -->
 <div class="section">
 
-<h3>5. KETERANGAN</h3>
+<h3>6. KETERANGAN</h3>
 
 <textarea id="notes">Pembayaran 50% DP, sisa 50% setelah Barang diterima & Invoice terbit
 Harga diatas tidak dikenakan PPN (Non PKP)
@@ -464,8 +544,8 @@ Atas perhatiannya, kami ucapkan terimakasih.</textarea>
 Simpan
 </button>
 
-<button class="green" onclick="window.print()">
-Cetak / PDF
+<button class="green" onclick="printPDF()">
+Cetak / Simpan PDF
 </button>
 
 </div>
@@ -497,14 +577,10 @@ Cetak / PDF
 
 <p id="pAddress"></p>
 
-<p>
-Tlp. <span id="pPhone"></span>
-</p>
-
-<p>
-Email:
-<span id="pEmail"></span>
-</p>
+<div class="contact-row">
+<p>Tlp. <span id="pPhone"></span></p>
+<p class="email-line">Email: <span id="pEmail"></span></p>
+</div>
 
 </div>
 
@@ -518,9 +594,9 @@ Email:
 <div>Attn</div>
 <div>:</div>
 <div>
-<b id="pAttn"></b>
+<b id="pUp"></b>
 <br>
-&nbsp;&nbsp;<b id="pUp"></b>
+<b id="pAttn"></b>
 </div>
 <div class="date" id="pDate"></div>
 
@@ -591,10 +667,13 @@ Hormat kami,
 </div>
 
 
-<div class="footer">
-PT. BERKAH MANDIRI BERSAUDARA • Surat Penawaran Harga
+
 </div>
 
+<div class="paper customer-paper">
+<div class="customer-title">CUSTOMER KAMI</div>
+<div class="customer-subtitle">Beberapa perusahaan/customer yang telah mempercayakan kebutuhannya kepada kami</div>
+<div id="pCustomerLogos" class="customer-logos"><div class="customer-empty">Belum ada logo customer. Tambahkan logo melalui panel input.</div></div>
 </div>
 
 </div>
@@ -630,9 +709,9 @@ function esc(s){
 
 function addProduct(
     name="",
-    qty=1,
-    unit="PCS",
-    price=0,
+    qty="",
+    unit="",
+    price="",
     image=""
 ){
 
@@ -648,20 +727,21 @@ function addProduct(
 
         <span class="number"></span>
 
-        <input class="name"
-        placeholder="Nama barang"
-        value="${esc(name)}">
+        <textarea class="name" placeholder="Nama barang">${esc(name)}</textarea>
 
         <input class="qty"
         type="number"
-        value="${qty}">
+        value="${qty}"
+        placeholder="Qty">
 
         <input class="unit"
-        value="${esc(unit)}">
+        value="${esc(unit)}"
+        placeholder="Satuan">
 
         <input class="price"
         type="number"
-        value="${price}">
+        value="${price}"
+        placeholder="Harga">
 
         <button class="red remove">
         ×
@@ -755,10 +835,8 @@ function addProduct(
 
     /* INPUT */
 
-    box.querySelectorAll(
-        "input:not(.photoInput)"
-    ).forEach(x=>{
-        x.oninput=update;
+    box.querySelectorAll("input:not(.photoInput), textarea").forEach(x=>{
+        x.addEventListener("input", update);
     });
 
 
@@ -814,6 +892,8 @@ function update(){
             }
         );
 
+    }else{
+        $("pDate").textContent="";
     }
 
 
@@ -821,6 +901,7 @@ function update(){
 
     $("pOpening").innerHTML=
     esc($("opening").value)
+    .replace(/PT\. BERKAH MANDIRI BERSAUDARA/g,"<strong>PT. BERKAH MANDIRI BERSAUDARA</strong>")
     .replace(/\n/g,"<br>");
 
 
@@ -839,9 +920,18 @@ function update(){
     .filter(x=>x.trim());
 
     $("pNotes").innerHTML=
-    notes.map(x=>"<li>"+esc(x)+"</li>")
-    .join("");
+    notes.map((x,i)=>{
+        const text=esc(x);
+        // Bold keterangan pertama dan baris nomor rekening.
+        if(i===0 || /Bank BCA\s+343\.2608\.449/i.test(x)){
+            return "<li><b>"+text+"</b></li>";
+        }
+        return "<li>"+text+"</li>";
+    }).join("");
 
+
+    /* HALAMAN CUSTOMER */
+    renderCustomerLogos();
 
     /* SALES */
 
@@ -881,11 +971,16 @@ function update(){
         .textContent=i+1;
 
 
+        const qtyText = p.querySelector(".qty").value === "" ? "" : qty;
+        const unitText = unit;
+        const priceText = p.querySelector(".price").value === "" ? "" : rupiah(price);
+        const totalText = (p.querySelector(".qty").value !== "" && p.querySelector(".price").value !== "") ? rupiah(total) : "";
+
         html+=`
 
         <tr>
 
-        <td>
+        <td class="product-name">
         <b>${esc(name)}</b>
         ${
             img
@@ -895,19 +990,19 @@ function update(){
         </td>
 
         <td class="center">
-        ${qty}
+        ${qtyText}
         </td>
 
         <td class="center">
-        ${esc(unit)}
+        ${esc(unitText)}
         </td>
 
         <td class="price">
-        ${rupiah(price)}
+        ${priceText}
         </td>
 
         <td class="price">
-        ${rupiah(total)}
+        ${totalText}
         </td>
 
         </tr>
@@ -935,6 +1030,69 @@ function update(){
 
 
 /* =========================
+   LOGO CUSTOMER
+========================= */
+
+let customerLogosData=[];
+
+function renderCustomerLogoInputList(){
+    const list=$("customerLogoList");
+    if(!list)return;
+    if(!customerLogosData.length){
+        list.innerHTML='<span style="color:#777">Belum ada logo customer.</span>';
+        return;
+    }
+    list.innerHTML=customerLogosData.map((item,i)=>`
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <img src="${item.image}" style="width:38px;height:30px;object-fit:contain;border:1px solid #ddd">
+            <span style="flex:1">${esc(item.name||("Customer "+(i+1)))}</span>
+            <button type="button" class="red" style="padding:4px 8px" onclick="removeCustomerLogo(${i})">×</button>
+        </div>
+    `).join("");
+}
+
+function renderCustomerLogos(){
+    const box=$("pCustomerLogos");
+    if(!box)return;
+    if(!customerLogosData.length){
+        box.innerHTML='<div class="customer-empty">Belum ada logo customer. Tambahkan logo melalui panel input.</div>';
+        return;
+    }
+    box.innerHTML=customerLogosData.map(item=>`
+        <div class="customer-logo-card">
+            <div class="customer-logo-item"><img src="${item.image}" alt="${esc(item.name||"Customer")}"></div>
+        </div>
+    `).join("");
+}
+
+function removeCustomerLogo(index){
+    customerLogosData.splice(index,1);
+    renderCustomerLogoInputList();
+    renderCustomerLogos();
+    saveCustomerLogos();
+}
+
+function saveCustomerLogos(){
+    try{localStorage.sphCustomerLogos=JSON.stringify(customerLogosData);}
+    catch(e){alert("Logo customer terlalu banyak/besar untuk disimpan di browser.");}
+}
+
+$("customerLogos").onchange=e=>{
+    const files=[...e.target.files];
+    if(!files.length)return;
+    let remaining=files.length;
+    files.forEach(file=>{
+        const reader=new FileReader();
+        reader.onload=()=>{
+            customerLogosData.push({name:file.name.replace(/\.[^/.]+$/,"").replace(/[-_]+/g," "),image:reader.result});
+            remaining--;
+            if(remaining===0){renderCustomerLogoInputList();renderCustomerLogos();saveCustomerLogos();$("customerLogos").value="";}
+        };
+        reader.readAsDataURL(file);
+    });
+};
+
+/* =========================
    LOGO
 ========================= */
 
@@ -959,6 +1117,19 @@ $("logo").onchange=e=>{
     reader.readAsDataURL(file);
 };
 
+
+/* =========================
+   CETAK / SIMPAN PDF
+========================= */
+
+function printPDF(){
+    update();
+    document.body.classList.add("printing");
+    setTimeout(()=>{
+        window.print();
+        setTimeout(()=>document.body.classList.remove("printing"),500);
+    },150);
+}
 
 /* =========================
    SIMPAN
@@ -1005,7 +1176,7 @@ function saveData(){
     });
 
 
-    localStorage.sphData=
+    localStorage.sphDataV7=
     JSON.stringify(data);
 
     alert("Data berhasil disimpan.");
@@ -1019,7 +1190,7 @@ function saveData(){
 function loadData(){
 
     let data=
-    localStorage.sphData;
+    localStorage.sphDataV6;
 
     if(data){
 
@@ -1054,26 +1225,7 @@ function loadData(){
 
     }else{
 
-        addProduct(
-            "SAFETY SHOES\nBRAND : DOOZ",
-            1,
-            "PASANG",
-            200000
-        );
-
-        addProduct(
-            "HELM FASTRACT\nBRAND : GO SAVE",
-            1,
-            "PCS",
-            49500
-        );
-
-        addProduct(
-            "KACAMATA SAFETY\nBRAND : KINGS",
-            1,
-            "PCS",
-            73344
-        );
+        addProduct();
 
     }
 
@@ -1085,6 +1237,11 @@ function loadData(){
 
     }
 
+    if(localStorage.sphCustomerLogos){
+        try{customerLogosData=JSON.parse(localStorage.sphCustomerLogos)||[];}catch(e){customerLogosData=[];}
+    }
+    renderCustomerLogoInputList();
+    renderCustomerLogos();
     update();
 }
 
